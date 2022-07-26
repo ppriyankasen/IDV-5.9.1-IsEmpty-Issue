@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { VaultMigrator } from '@ionic-enterprise/identity-vault';
 import { VaultService, VaultServiceState } from '../vault.service';
 
 @Component({
@@ -39,5 +40,13 @@ export class HomePage {
 
   clearVault() {
     this.vaultService.clearVault();
+  }
+
+  async migrateVault() {
+    this.vaultService.migrateVault();
+  }
+
+  checkEmpty() {
+    this.vaultService.checkEmpty();
   }
 }

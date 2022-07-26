@@ -7,6 +7,7 @@ import {
   VaultType,
   BrowserVault,
   IdentityVaultConfig,
+  VaultMigrator,
 } from '@ionic-enterprise/identity-vault';
 import { Platform } from '@ionic/angular';
 
@@ -63,14 +64,17 @@ export class VaultService {
         this.state.isLocked = false;
       });
     });
-
-    this.state.isLocked = await this.vault.isLocked();
+    try {
+      this.state.isEmpty = await this.vault.isEmpty();
+      this.state.isLocked = await this.vault.isLocked();
+    } catch (error) {
+      console.log(error);
+    }
 
     this.state.privacyScreen =
       Capacitor.getPlatform() === 'web' ? false : await Device.isHideScreenOnBackgroundEnabled();
     this.state.canUseBiometrics = Capacitor.getPlatform() === 'web' ? false : await Device.isBiometricsEnabled();
     this.state.canUsePasscode = Capacitor.getPlatform() === 'web' ? false : await Device.isSystemPasscodeSet();
-    this.state.isEmpty = await this.vault.isEmpty();
   }
 
   async setSession(value: string): Promise<void> {
@@ -127,6 +131,27 @@ export class VaultService {
     await this.vault.clear();
     this.state.lockType = 'NoLocking';
     this.state.session = undefined;
+    this.state.isEmpty = await this.vault.isEmpty();
+  }
+
+  async migrateVault() {
+    const migrator = new VaultMigrator({
+      // old V4 config
+      restoreSessionOnReady: false,
+      unlockOnReady: false,
+      unlockOnAccess: true,
+      lockAfter: 300000,
+      hideScreenOnBackground: false,
+      androidPromptTitle: 'Biometrics Login'
+    });
+    const oldData = await migrator.exportVault();
+    console.log('old data', JSON.stringify(oldData));
+    if (oldData) {
+      await this.vault.importVault(oldData);
+    }
+  }
+
+  async checkEmpty() {
     this.state.isEmpty = await this.vault.isEmpty();
   }
 }
