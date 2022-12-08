@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { VaultMigrator } from '@ionic-enterprise/identity-vault';
 import { VaultService, VaultServiceState } from '../vault.service';
+import { ScreenOrientation } from '@ionic-enterprise/screen-orientation/ngx';
 
 @Component({
   selector: 'app-home',
@@ -10,8 +11,9 @@ import { VaultService, VaultServiceState } from '../vault.service';
 export class HomePage {
   public state: VaultServiceState;
 
-  constructor(private vaultService: VaultService) {
+  constructor(private vaultService: VaultService, private screenOrientation: ScreenOrientation) {
     this.state = vaultService.state;
+    this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT_PRIMARY);
   }
 
   async setSession(data: string) {
@@ -27,7 +29,13 @@ export class HomePage {
   }
 
   unlockVault() {
-    this.vaultService.unlockVault();
+    this.vaultService.unlockVault().then(res => {
+      console.log(res);
+    }).catch(err => {
+      console.log(err);
+    }).finally(() => {
+      console.log('Unlock completed');
+    });
   }
 
   setLockType() {
@@ -48,5 +56,14 @@ export class HomePage {
 
   checkEmpty() {
     this.vaultService.checkEmpty();
+  }
+
+  toggleorientation() {
+    this.screenOrientation.unlock();
+    if (this.screenOrientation.type === this.screenOrientation.ORIENTATIONS.PORTRAIT_PRIMARY) {
+      this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.LANDSCAPE_PRIMARY);
+    }else {
+      this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT_PRIMARY);
+    }
   }
 }

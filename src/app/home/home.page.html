@@ -42,6 +42,12 @@
     </ion-item>
 
     <ion-item>
+      <div style="flex: auto">
+        <ion-button expand="block" (click)="toggleorientation()">Toggle orientation</ion-button>
+      </div>
+    </ion-item>
+
+    <ion-item>
       <ion-label>Use Privacy Screen</ion-label>
       <ion-checkbox [(ngModel)]="state.privacyScreen" (ionChange)="setPrivacyScreen()"></ion-checkbox>
     </ion-item>
